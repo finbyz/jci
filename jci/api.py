@@ -10,6 +10,8 @@ from collections import defaultdict
 # from frappe.utils import nowdate, add_days, getdate, get_time, add_months
 
 def time_tango(date, time):
+	if isinstance(date, datetime):
+		date = date.date()
 	return datetime.strptime("{}, {}".format(date, time), "%Y-%m-%d, %H:%M:%S")
 
 @frappe.whitelist()
