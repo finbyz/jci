@@ -17,14 +17,14 @@ def time_tango(date, time):
 
 
 @frappe.whitelist()
-def issue_before_save(self, method): 
+def issue_before_save(self, method):
 	if self.get('opening_date') and self.get('opening_time'):
 		opening_datetime = time_tango(self.opening_date, str(self.opening_time).split('.')[0])
-		self.due_date = opening_datetime + (timedelta(minutes=30))
+		self.due_date = opening_datetime + timedelta(minutes=30)
 
 	if self.get('resolution'):
 		resolution_date = str(self.resolution).split()
-		self.resolution = resolution_date[0]
+		# self.resolution = resolution_date[0]
 
 		if self.get('status') == "Closed":
 			if self.get('resolution_time'):
@@ -32,8 +32,17 @@ def issue_before_save(self, method):
 			else:
 				closing_datetime = time_tango(self.resolution, self.custom_resolution_time)
 				frappe.throw(str(closing_datetime))
+
 			diff = closing_datetime - opening_datetime
-			self.time_difference = diff
+
+			days = diff.days
+			seconds = diff.seconds
+			hours, remainder = divmod(seconds, 3600)
+			minutes, seconds = divmod(remainder, 60)
+
+			formatted_diff = f"{days} days, {hours:02}:{minutes:02}:{seconds:02}"
+			self.time_difference = formatted_diff
+
 
 @frappe.whitelist()
 def issue_reports():
