@@ -12,7 +12,9 @@ from collections import defaultdict
 def time_tango(date, time):
 	if isinstance(date, datetime):
 		date = date.date()
+	time = time.split('.')[0]  # Remove fractional seconds
 	return datetime.strptime("{}, {}".format(date, time), "%Y-%m-%d, %H:%M:%S")
+
 
 @frappe.whitelist()
 def issue_before_save(self, method): 
@@ -20,13 +22,16 @@ def issue_before_save(self, method):
 		opening_datetime = time_tango(self.opening_date, str(self.opening_time).split('.')[0])
 		self.due_date = opening_datetime + (timedelta(minutes=30))
 
-	if self.get('resolution_date'):
-		resolution_date = str(self.resolution_date).split()
+	if self.get('resolution'):
+		resolution_date = str(self.resolution).split()
 		self.resolution = resolution_date[0]
-		self.resolution_time = str(resolution_date[1]).split('.')[0]
 
-		if self.status == "Closed":
-			closing_datetime = time_tango(self.resolution, self.resolution_time)
+		if self.get('status') == "Closed":
+			if self.get('resolution_time'):
+				closing_datetime = time_tango(self.resolution, self.resolution_time)
+			else:
+				closing_datetime = time_tango(self.resolution, self.custom_resolution_time)
+				frappe.throw(str(closing_datetime))
 			diff = closing_datetime - opening_datetime
 			self.time_difference = diff
 

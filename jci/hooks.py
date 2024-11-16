@@ -94,7 +94,7 @@ app_license = "GPL 3.0"
 
 doc_events = {
 	"Issue": {
- 		"before_save": "jci.api.issue_before_save"
+ 		"validate": "jci.api.issue_before_save"
  	},
 	"JCI Lead": {
 		"before_save": "jci.api.jci_lead_before_save"
