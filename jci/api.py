@@ -41,7 +41,8 @@ def issue_before_save(self, method):
 			minutes, seconds = divmod(remainder, 60)
 
 			formatted_diff = f"{days} days, {hours:02}:{minutes:02}:{seconds:02}"
-			self.time_difference = formatted_diff
+			if not self.time_difference:
+				self.time_difference = formatted_diff
 
 
 @frappe.whitelist()
